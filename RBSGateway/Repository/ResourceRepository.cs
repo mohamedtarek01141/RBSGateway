@@ -17,12 +17,15 @@ namespace RBSGateway.Repository
 
         public async Task<IEnumerable<Resource>> GetAllResourcesAsync()
         {
-            return await _context.Resources.Include(r => r.ResourceName).ToListAsync();
+            return await _context.Resources.Include(r => r.ResourceName).AsNoTracking().ToListAsync();
         }
 
-        public async Task<Resource> GetResourceByIdAsync(int id)
+        public async Task<Resource> GetResourceByIdAsync(int resourceId, int companyId, int tenantId)
         {
-            return await _context.Resources.Include(r => r.ResourceName).FirstOrDefaultAsync(r => r.ResourceID == id); ;
+            return await _context.Resources.Include(r => r.ResourceName).Include(it=>it.Items).AsNoTracking()
+                                           .FirstOrDefaultAsync(r => r.ResourceID == resourceId &&
+                                                                     r.TenantID==tenantId       &&
+                                                                     r.CompanyID==companyId);
         }
 
         public async Task<Resource> AddResourceAsync(Resource resource)
@@ -38,9 +41,9 @@ namespace RBSGateway.Repository
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> DeleteResourceAsync(int id)
+        public async Task<bool> DeleteResourceAsync(int resourceId, int companyId, int tenantId)
         {
-            var resource = await _context.Resources.FindAsync(id);
+            var resource = await _context.Resources.FindAsync(resourceId, companyId, tenantId);
             if (resource == null)
             {
                 return false;

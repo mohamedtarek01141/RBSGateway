@@ -51,5 +51,9 @@ namespace RBSGateway.Repository
             return await _context.SaveChangesAsync() > 0;
         }
 
+        public async Task<ResourceName> GetResourceByNameAsync(string name)
+        {
+            return await _context.ResourceNames.FirstOrDefaultAsync(rn=>rn.Name==name);
+        }
     }
 }

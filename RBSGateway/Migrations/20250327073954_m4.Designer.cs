@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RBSGateway.Data;
 
@@ -11,9 +12,11 @@ using RBSGateway.Data;
 namespace RBSGateway.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250327073954_m4")]
+    partial class m4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,9 +34,6 @@ namespace RBSGateway.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ResourceID"));
 
                     b.Property<int>("CompanyID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TenantID")
                         .HasColumnType("int");
 
                     b.Property<int>("CreatedBy")
@@ -66,11 +66,14 @@ namespace RBSGateway.Migrations
                     b.Property<int?>("SiteID")
                         .HasColumnType("int");
 
-                    b.HasKey("ResourceID", "CompanyID", "TenantID");
+                    b.Property<int>("TenantID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ResourceID", "CompanyID");
 
                     b.HasIndex("ResourceNameId");
 
-                    b.HasIndex("ParentID", "CompanyID", "TenantID");
+                    b.HasIndex("ParentID", "CompanyID");
 
                     b.ToTable("Resources");
                 });
@@ -104,7 +107,7 @@ namespace RBSGateway.Migrations
 
                     b.HasOne("RBSGateway.Entities.Resource", "Parent")
                         .WithMany("Items")
-                        .HasForeignKey("ParentID", "CompanyID", "TenantID")
+                        .HasForeignKey("ParentID", "CompanyID")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Parent");
