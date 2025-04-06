@@ -13,11 +13,34 @@ namespace RBSGateway.Repository
             _context = context;
 
         }
-       
+
 
         public async Task<IEnumerable<Resource>> GetAllResourcesAsync()
         {
-            return await _context.Resources.Include(r => r.ResourceName).AsNoTracking().ToListAsync();
+            var allResources = await _context.Resources.Include(r=>r.ResourceName)
+           .AsNoTracking()
+           .ToListAsync();
+            var resourcesDict = allResources.ToDictionary(r => r.ResourceID);
+            foreach (var resource in allResources.Where(r => r.ParentID != null))
+            {
+                if (resourcesDict.TryGetValue(resource.ParentID.Value, out var parent))
+                {
+                    parent.Items ??= new List<Resource>();
+                    parent.Items.Add(resource);
+                }
+            }
+            return allResources.Where(r => r.ParentID == null).ToList();
+
+
+        }
+
+
+        
+        public async Task<IEnumerable<Resource>> GetTopLeVelResources()
+        {
+            return await _context.Resources
+        .Where(r => r.ParentID == null)
+        .ToListAsync();
         }
 
         public async Task<Resource> GetResourceByIdAsync(int resourceId, int companyId, int tenantId)
@@ -41,13 +64,8 @@ namespace RBSGateway.Repository
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> DeleteResourceAsync(int resourceId, int companyId, int tenantId)
+        public async Task<bool> DeleteResourceAsync(Resource resource)
         {
-            var resource = await _context.Resources.FindAsync(resourceId, companyId, tenantId);
-            if (resource == null)
-            {
-                return false;
-            }
             _context.Resources.Remove(resource);
             return await _context.SaveChangesAsync() > 0;
         }

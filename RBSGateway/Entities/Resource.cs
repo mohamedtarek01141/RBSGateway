@@ -13,7 +13,9 @@ namespace RBSGateway.Entities
         public Resource Parent { get; set; }
 
         public int? ParentID { get; set; }
+        public Tenant Tenant { get; set; }
         public int TenantID { get;set; }
+        public Company Company { get; set; }
         public int CompanyID { get; set; }
         public int? DepartmentID { get; set; }
         public int? SiteID { get; set; }

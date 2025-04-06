@@ -12,8 +12,8 @@ using RBSGateway.Data;
 namespace RBSGateway.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250327093016_m5")]
-    partial class m5
+    [Migration("20250404112135_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,51 @@ namespace RBSGateway.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("RBSGateway.Entities.Company", b =>
+                {
+                    b.Property<int>("CompanyID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TenantID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CompanyName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateOnly>("CreatedDate")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateOnly?>("LastUpdateDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("LastUpdateUser")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("CompanyID", "TenantID");
+
+                    b.HasIndex("TenantID");
+
+                    b.ToTable("Company");
+                });
 
             modelBuilder.Entity("RBSGateway.Entities.Resource", b =>
                 {
@@ -73,6 +118,10 @@ namespace RBSGateway.Migrations
 
                     b.HasIndex("ResourceNameId");
 
+                    b.HasIndex("TenantID");
+
+                    b.HasIndex("CompanyID", "TenantID");
+
                     b.HasIndex("ParentID", "CompanyID", "TenantID");
 
                     b.ToTable("Resources");
@@ -97,22 +146,65 @@ namespace RBSGateway.Migrations
                     b.ToTable("ResourceNames");
                 });
 
+            modelBuilder.Entity("RBSGateway.Entities.Tenant", b =>
+                {
+                    b.Property<int>("TenantID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TenantID"));
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("TenantID");
+
+                    b.ToTable("Tenant");
+                });
+
+            modelBuilder.Entity("RBSGateway.Entities.Company", b =>
+                {
+                    b.HasOne("RBSGateway.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+                });
+
             modelBuilder.Entity("RBSGateway.Entities.Resource", b =>
                 {
                     b.HasOne("RBSGateway.Entities.ResourceName", "ResourceName")
                         .WithMany()
                         .HasForeignKey("ResourceNameId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("RBSGateway.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RBSGateway.Entities.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyID", "TenantID")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("RBSGateway.Entities.Resource", "Parent")
                         .WithMany("Items")
                         .HasForeignKey("ParentID", "CompanyID", "TenantID")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("Company");
 
                     b.Navigation("Parent");
 
                     b.Navigation("ResourceName");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("RBSGateway.Entities.Resource", b =>

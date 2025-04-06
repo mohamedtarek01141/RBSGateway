@@ -16,16 +16,22 @@ namespace RBSGateway.Data
 
             modelBuilder.Entity<Resource>(entity =>
             {
-               entity.HasKey(r => new { r.ResourceID,r.CompanyID,r.TenantID });
+                entity.HasKey(r => new { r.ResourceID, r.CompanyID, r.TenantID });
                 entity.HasOne(r => r.ResourceName)
                       .WithMany()
                       .HasForeignKey(r => r.ResourceNameId)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .OnDelete(DeleteBehavior.NoAction);
                 entity.HasOne(r => r.Parent)
                       .WithMany(r => r.Items)
-                      .HasForeignKey(r => new { r.ParentID, r.CompanyID,r.TenantID})
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .HasForeignKey(r => new { r.ParentID, r.CompanyID, r.TenantID })
+                      .OnDelete(DeleteBehavior.NoAction);
             });
+            modelBuilder.Entity<Company>(entity =>
+            {
+                entity.HasKey(c => new { c.CompanyID, c.TenantID });
+
+            });
+        
         }
     }
 }

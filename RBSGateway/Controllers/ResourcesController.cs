@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RBSGateway.DTO.Resource;
+using RBSGateway.Interface;
 using RBSGateway.Services.ResourceServices;
 
 namespace RBSGateway.Controllers
@@ -11,10 +12,13 @@ namespace RBSGateway.Controllers
     public class ResourcesController : ControllerBase
     {
         private readonly IResourceService _resourceService;
+        private readonly IResourceRepository _resourceRepository;
 
-        public ResourcesController(IResourceService resourceService)
+        public ResourcesController(IResourceService resourceService, IResourceRepository resourceRepository)
         {
             _resourceService = resourceService;
+            _resourceRepository = resourceRepository;
+
         }
         [HttpGet("All")]
         public async Task<IActionResult> GetAll()
@@ -50,9 +54,9 @@ namespace RBSGateway.Controllers
         [HttpDelete("Delete")]
         public async Task<IActionResult> Delete(int Id)
         {
+            var resource =await _resourceRepository.GetResourceByIdAsync(Id,1,1);
 
-
-            var result = await _resourceService.DeleteAsync(Id,1,1);
+            var result = await _resourceService.DeleteAsync(resource);
             return result ? Ok(result) : BadRequest("Failed to delete resource");
         }
     }

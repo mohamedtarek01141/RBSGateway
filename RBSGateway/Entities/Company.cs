@@ -4,6 +4,8 @@ namespace RBSGateway.Entities
     public class Company
     {
         public int CompanyID { get; set; }
+        public Tenant Tenant { get; set; }
+        public int TenantID { get; set; }
         public string CompanyName { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;

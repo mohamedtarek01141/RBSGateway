@@ -9,6 +9,6 @@ namespace RBSGateway.Interface
         Task<IEnumerable<Resource>> GetAllResourcesAsync();
         Task<Resource> AddResourceAsync(Resource resource);
         Task<bool> UpdateResourceAsync(Resource resource);
-        Task<bool> DeleteResourceAsync(int resourceId, int companyId, int tenantId);
+        Task<bool> DeleteResourceAsync(Resource resource);
     }
 }
